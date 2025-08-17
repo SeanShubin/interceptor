@@ -10,23 +10,25 @@ class HttpClientCached(
     override fun send(request: RequestValue): ResponseValue {
         files.createDirectories(cacheDir)
         val file = cacheDir.resolve(request.cacheKey() + ".json")
-        val response = if (files.exists(file)) {
-            loadResponseFromFile(file)
+        val cached = if (files.exists(file)) {
+            loadFromFile(file)
         } else {
             val response = httpClientContract.send(request)
-            saveResponseToFile(file, response)
-            response
+            val delaySeconds = 0
+            val cachePayload = CachePayload(delaySeconds, request, response)
+            saveToFile(file, cachePayload)
+            cachePayload
         }
-        return response
+        return cached.response
     }
 
-    private fun loadResponseFromFile(file: Path): ResponseValue {
+    private fun loadFromFile(file: Path): CachePayload {
         val json = files.readString(file)
         return JsonMappers.parse(json)
     }
 
-    private fun saveResponseToFile(file: Path, response: ResponseValue) {
-        val json = JsonMappers.pretty.writeValueAsString(response)
+    private fun saveToFile(file: Path, cachePayload:CachePayload) {
+        val json = JsonMappers.pretty.writeValueAsString(cachePayload)
         files.writeString(file, json)
     }
 
