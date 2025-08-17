@@ -7,7 +7,7 @@ import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 
 class InterceptorHandler(
-    val httpClient: HttpClient,
+    val httpClient: HttpClientContract,
     val restrictedHeaders: Set<String>,
     val transformer: Transformer
 ) : HttpHandler {
@@ -21,17 +21,9 @@ class InterceptorHandler(
 
     private fun handleCouldThrow(exchange: HttpExchange) {
         val requestValue = DataTransferService.exchangeToRequestValue(exchange)
-//        val newRequestValue = requestValue.updateUri { uri ->
-//            "https://members.cj.com$uri"
-//        }
         val newRequestValue = requestValue.updateUri(transformer::transform)
-        val httpRequest = DataTransferService.requestValueToHttpRequest(newRequestValue, restrictedHeaders)
         println(JsonMappers.pretty.writeValueAsString(newRequestValue))
-        val response: HttpResponse<String> = httpClient.send(
-            httpRequest,
-            HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
-        )
-        val responseValue = DataTransferService.httpResponseToResponseValue(response)
+        val responseValue = httpClient.send(newRequestValue)
         println(JsonMappers.pretty.writeValueAsString(responseValue))
         DataTransferService.responseValueToExchange(responseValue, exchange)
     }
