@@ -5,15 +5,22 @@ import com.sun.net.httpserver.HttpServer
 import java.net.InetSocketAddress
 import java.net.http.HttpClient
 
-class ConfigDependencies(private val transformationPatterns: List<Pair<String, String>>) {
+class ConfigDependencies(
+    config: Config
+) {
     val restrictedHeaders = setOf("Connection", "Host")
     val port = 8080
     val maxQueuedConnections = 0
+    val files: FilesContract = FilesDelegate
     val address = InetSocketAddress(port)
     val httpServer: HttpServer = HttpServer.create(address, maxQueuedConnections)
     val javaHttpClient: HttpClient = HttpClient.newHttpClient()
-    val valueHttpClient: HttpClientContract = HttpClientDelegate(javaHttpClient, restrictedHeaders)
-    val transformer: Transformer = TransformerImpl(transformationPatterns)
-    val httpHandler: HttpHandler = InterceptorHandler(valueHttpClient, restrictedHeaders, transformer)
+    val httpClientValues: HttpClientContract = HttpClientDelegate(javaHttpClient, restrictedHeaders)
+    val httpClientCached: HttpClientContract = HttpClientCached(
+        files,
+        config.cacheDir,
+        httpClientValues)
+    val transformer: Transformer = TransformerImpl(config.transformationPatterns)
+    val httpHandler: HttpHandler = InterceptorHandler(httpClientCached, restrictedHeaders, transformer)
     val runner: Runnable = Interceptor(httpServer, httpHandler)
 }

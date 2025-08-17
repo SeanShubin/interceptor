@@ -8,6 +8,7 @@ class HttpClientCached(
     val httpClientContract: HttpClientContract
 ) : HttpClientContract {
     override fun send(request: RequestValue): ResponseValue {
+        files.createDirectories(cacheDir)
         val file = cacheDir.resolve(request.cacheKey() + ".json")
         val response = if (files.exists(file)) {
             loadResponseFromFile(file)
@@ -30,6 +31,10 @@ class HttpClientCached(
     }
 
     private fun RequestValue.cacheKey(): String {
-        return "${method}-$uri"
+        return "${method}-$uri".sanitize()
+    }
+
+    private fun String.sanitize():String {
+        return this.replace(Regex("[/]"), "_")
     }
 }
