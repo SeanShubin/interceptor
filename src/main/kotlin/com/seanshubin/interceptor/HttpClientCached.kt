@@ -19,6 +19,9 @@ class HttpClientCached(
             saveToFile(file, cachePayload)
             cachePayload
         }
+        if (cached.delaySeconds > 0) {
+            Thread.sleep(cached.delaySeconds * 1000L)
+        }
         return cached.response
     }
 
