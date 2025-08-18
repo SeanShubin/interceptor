@@ -27,7 +27,7 @@ class HttpClientCached(
         return JsonMappers.parse(json)
     }
 
-    private fun saveToFile(file: Path, cachePayload:CachePayload) {
+    private fun saveToFile(file: Path, cachePayload: CachePayload) {
         val json = JsonMappers.pretty.writeValueAsString(cachePayload)
         files.writeString(file, json)
     }
@@ -36,7 +36,7 @@ class HttpClientCached(
         return "${method}-$uri".sanitize()
     }
 
-    private fun String.sanitize():String {
+    private fun String.sanitize(): String {
         return this.replace(Regex("[/]"), "_")
     }
 }

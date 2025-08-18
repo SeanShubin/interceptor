@@ -2,9 +2,6 @@ package com.seanshubin.interceptor
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
-import java.net.http.HttpClient
-import java.net.http.HttpResponse
-import java.nio.charset.StandardCharsets
 
 class InterceptorHandler(
     val httpClient: HttpClientContract,

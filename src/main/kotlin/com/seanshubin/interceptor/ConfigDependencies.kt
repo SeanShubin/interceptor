@@ -19,7 +19,8 @@ class ConfigDependencies(
     val httpClientCached: HttpClientContract = HttpClientCached(
         files,
         config.cacheDir,
-        httpClientValues)
+        httpClientValues
+    )
     val transformer: Transformer = TransformerImpl(config.transformationPatterns)
     val httpHandler: HttpHandler = InterceptorHandler(httpClientCached, transformer)
     val runner: Runnable = Interceptor(httpServer, httpHandler)
