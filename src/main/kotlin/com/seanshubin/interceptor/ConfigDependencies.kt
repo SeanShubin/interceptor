@@ -8,7 +8,7 @@ import java.net.http.HttpClient
 class ConfigDependencies(
     config: Config
 ) {
-    val restrictedHeaders = setOf("Connection", "Host")
+    val restrictedHeaders = setOf("Connection", "Host", "Content-length")
     val port = 8080
     val maxQueuedConnections = 0
     val files: FilesContract = FilesDelegate
@@ -21,6 +21,6 @@ class ConfigDependencies(
         config.cacheDir,
         httpClientValues)
     val transformer: Transformer = TransformerImpl(config.transformationPatterns)
-    val httpHandler: HttpHandler = InterceptorHandler(httpClientCached, restrictedHeaders, transformer)
+    val httpHandler: HttpHandler = InterceptorHandler(httpClientCached, transformer)
     val runner: Runnable = Interceptor(httpServer, httpHandler)
 }

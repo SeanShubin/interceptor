@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets
 
 class InterceptorHandler(
     val httpClient: HttpClientContract,
-    val restrictedHeaders: Set<String>,
     val transformer: Transformer
 ) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
@@ -22,9 +21,8 @@ class InterceptorHandler(
     private fun handleCouldThrow(exchange: HttpExchange) {
         val requestValue = DataTransferService.exchangeToRequestValue(exchange)
         val newRequestValue = requestValue.updateUri(transformer::transform)
-        println(JsonMappers.pretty.writeValueAsString(newRequestValue))
+        println("${requestValue.uri} -> ${newRequestValue.uri}")
         val responseValue = httpClient.send(newRequestValue)
-        println(JsonMappers.pretty.writeValueAsString(responseValue))
         DataTransferService.responseValueToExchange(responseValue, exchange)
     }
 }
