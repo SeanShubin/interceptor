@@ -57,7 +57,8 @@ object DataTransferService {
                 name to value
             }
         }
-        val body = response.body()
+        val responseBody = response.body()
+        val body = responseBody.ifEmpty { null }
         return ResponseValue(statusCode, headers, body)
     }
 }
